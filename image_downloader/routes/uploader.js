@@ -3,6 +3,8 @@ var router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const ejs = require('ejs');
+
 
 const handleError = (err, res) => {
   res
@@ -14,10 +16,17 @@ const handleError = (err, res) => {
 
 // Set The Storage Engine
 const storage = multer.diskStorage({
-  destination: './public/uploads/',
+  destination: './routes/uploadedImages/',
+  /*
+  filename: function(req, file, cb){
+    cb(null,'image.png')
+  }
+  */
+  
   filename: function(req, file, cb){
     cb(null,file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
+  
 });
 
 // Init Upload
@@ -55,15 +64,29 @@ router.post('/', (req, res) => {
         res.send("No file selected");
       } 
       else {
-        res.send(`The file was uploaded:`);  
+        res.render('index');
        }
     }
   });
 });
-/*
+
 router.get("/image.png", (req, res) => {
-  res.sendFile(path.join(__dirname, "./uploads/image.png"));
+  //Read all files in the folder
+  fs.readdir(path.join(__dirname, "./uploadedImages/"), (err, files) => {
+
+      //Find most recently uploaded file
+      let numOfFiles = files.length;
+      files[numOfFiles-1];
+
+      let filePath  = "./uploadedImages/" + String(files[numOfFiles-1]);
+      console.log("filePath: " + filePath);
+      res.sendFile(path.join(__dirname, filePath));
+
+ 
+  });
+
+  //res.sendFile(path.join(__dirname, "./uploadedImages/image.png"));
 });
-*/
+
 
 module.exports = router;
